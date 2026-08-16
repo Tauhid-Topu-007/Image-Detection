@@ -1,96 +1,210 @@
-# 🐠 Aquarium Object Detection using Faster R-CNN
+# 🐠 Aquarium Object Detection with Faster R-CNN
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/your-username/aquarium-object-detection/blob/main/aquarium_detection.ipynb)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+An end-to-end deep learning project for detecting and classifying aquatic animals in aquarium images using **Faster R-CNN** with a **MobileNetV3-Large + FPN** backbone and transfer learning from COCO-pretrained weights.
 
----
+## 🚀 Project Overview
 
-## Overview
+This repository contains Jupyter notebooks covering object detection with R-CNN-based architectures. The main project focuses on **Faster R-CNN**, trained to locate multiple marine-life objects in a single image using bounding-box detection.
 
-This project implements an object detection pipeline to identify and classify marine life in aquarium images. Using a Faster R-CNN model with a MobileNetV3 backbone, the system can detect multiple aquatic creatures including fish, jellyfish, penguins, puffins, sharks, and starfish in a single image. The model leverages transfer learning from a pre-trained COCO checkpoint.
+The model is designed for the **Aquarium Combined Dataset** and supports detection of seven aquatic categories:
 
----
+- 🐟 Fish
+- 🪼 Jellyfish
+- 🐧 Penguin
+- 🐦 Puffin
+- 🦈 Shark
+- ⭐ Starfish
+- 🐟 Stingray
 
-## Features
+## ✨ Key Features
 
-- Data Pipeline: Custom PyTorch Dataset class handling COCO-format annotations
-- Augmentation: Dynamic image transformations using albumentations library
-- Transfer Learning: Pre-trained fasterrcnn_mobilenet_v3_large_fpn backbone
-- Performance Tracking: Detailed loss logging for each training component
-- GPU Support: Optimized for CUDA-enabled GPUs
-- Visualization: Side-by-side comparison of original images with predictions
+- Faster R-CNN object detection
+- MobileNetV3-Large backbone with Feature Pyramid Network (FPN)
+- COCO-pretrained transfer learning
+- Custom PyTorch dataset pipeline
+- COCO-format annotation support
+- Albumentations-based image augmentation
+- GPU/CUDA support
+- Training and loss monitoring
+- Bounding-box prediction visualization
+- Separate notebooks for R-CNN and Faster R-CNN experiments
 
----
+## 🧠 Model Architecture
 
-## Dataset
+```text
+Input Image
+     │
+     ▼
+MobileNetV3-Large Backbone
+     │
+     ▼
+Feature Pyramid Network (FPN)
+     │
+     ▼
+Region Proposal Network (RPN)
+     │
+     ▼
+RoI Features
+     │
+     ▼
+Classification + Bounding Box Regression
+     │
+     ▼
+Detected Aquatic Objects
+```
 
-This project uses the Aquarium Combined dataset from Kaggle.
+The Faster R-CNN implementation uses `fasterrcnn_mobilenet_v3_large_fpn` from TorchVision and replaces the default prediction head to support the target dataset classes.
 
-Source: Aquarium Dataset
-Classes: fish, jellyfish, penguin, puffin, shark, starfish, stingray
-Format: COCO JSON format
-Splits: Train, Validation, Test
+## 📊 Dataset
 
----
+The project uses the **Aquarium Combined Dataset**, containing images and object-detection annotations in COCO JSON format.
 
-## Model Architecture
+**Dataset characteristics:**
 
-The model uses Faster R-CNN with a MobileNetV3-Large backbone.
+| Property | Details |
+|---|---|
+| Domain | Aquarium / Marine Life |
+| Annotation | Bounding Boxes |
+| Format | COCO JSON |
+| Classes | 7 |
+| Splits | Train / Validation / Test |
+| Task | Multi-class Object Detection |
 
-Component: fasterrcnn_mobilenet_v3_large_fpn (pre-trained on COCO)
-Custom Head: Replaced predictor to match 7 classes
-Total Parameters: ~18.9M
-Trainable Parameters: ~18.8M
+## 📁 Repository Structure
 
----
+```text
+RCNN/
+├── RCNN.ipynb          # R-CNN experiments
+├── Faster_RCNN.ipynb   # Faster R-CNN implementation
+└── README.md           # Project documentation
+```
 
-## Installation
+## 🛠️ Tech Stack
 
-Prerequisites:
-- Python 3.8+
-- CUDA-capable GPU (recommended)
-- Kaggle API key
+- **Python**
+- **PyTorch**
+- **TorchVision**
+- **Albumentations**
+- **NumPy**
+- **Pandas**
+- **Matplotlib**
+- **Jupyter Notebook**
+- **CUDA** (recommended for training)
 
-Steps:
+## ⚙️ Installation
 
-Clone repository:
-git clone https://github.com/your-username/aquarium-object-detection.git
-cd aquarium-object-detection
+### 1. Clone the repository
 
-Install dependencies:
-pip install -r requirements.txt
+```bash
+git clone https://github.com/Tauhid-Topu-007/RCNN.git
+cd RCNN
+```
 
-Download dataset:
-mkdir ~/.kaggle
-cp kaggle.json ~/.kaggle/
-kaggle datasets download sharansmenon/aquarium-dataset
-unzip aquarium-dataset.zip -d ./data/
+### 2. Create a virtual environment
 
----
+```bash
+python -m venv venv
+```
 
-## Quick Start
+Activate it on Windows:
 
-```python
-import torch
-from aquarium_detection import *
+```bash
+venv\Scripts\activate
+```
 
-dataset_path = "./data/Aquarium Combined"
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+Activate it on Linux/macOS:
 
-train_dataset = AquariumDetection(root=dataset_path, transforms=get_train_transforms())
+```bash
+source venv/bin/activate
+```
 
-model = models.detection.fasterrcnn_mobilenet_v3_large_fpn(pretrained=True)
-model.roi_heads.box_predictor = models.detection.faster_rcnn.FastRCNNPredictor(
-    model.roi_heads.box_predictor.cls_score.in_features, 
-    len(train_dataset.coco.cats)
-)
-model.to(device)
+### 3. Install dependencies
 
-train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, 
-                         collate_fn=lambda x: tuple(zip(*x)))
-optimizer = optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=0.0005)
+Install the required packages used by the notebooks, including PyTorch, TorchVision, Albumentations, NumPy, Pandas, Matplotlib, and Jupyter.
 
-for epoch in range(10):
-    train_one_epoch(model, optimizer, train_loader, device, epoch)
+For GPU training, install the PyTorch build compatible with your CUDA version from the official PyTorch installation instructions.
+
+## ▶️ Running the Project
+
+Launch Jupyter Notebook:
+
+```bash
+jupyter notebook
+```
+
+Then open:
+
+```text
+Faster_RCNN.ipynb
+```
+
+For the R-CNN experiments, open:
+
+```text
+RCNN.ipynb
+```
+
+Make sure the dataset path and annotation locations are correctly configured before running the training cells.
+
+## 🔬 Training Workflow
+
+The typical workflow is:
+
+1. Load the Aquarium dataset.
+2. Parse COCO-format annotations.
+3. Apply image transformations and augmentation.
+4. Build the Faster R-CNN model.
+5. Load COCO-pretrained weights.
+6. Replace the detection head for the target classes.
+7. Train using GPU when available.
+8. Track training losses.
+9. Run inference on validation/test images.
+10. Visualize predicted bounding boxes and class labels.
+
+## 💻 Hardware Recommendation
+
+Training object-detection models is computationally expensive. A CUDA-enabled NVIDIA GPU is recommended for practical training times. CPU execution is possible for experimentation and inference but will generally be much slower.
+
+## 📌 Learning Objectives
+
+This project demonstrates practical concepts including:
+
+- Object detection
+- Region Proposal Networks
+- Faster R-CNN
+- Transfer learning
+- Backbone networks
+- Feature Pyramid Networks
+- Bounding-box regression
+- Multi-class detection
+- COCO annotation handling
+- Computer vision data augmentation
+- PyTorch/TorchVision model customization
+
+## 🔮 Future Improvements
+
+Potential extensions include:
+
+- Add quantitative evaluation with mAP, IoU, precision, and recall
+- Compare Faster R-CNN with YOLO and SSD
+- Fine-tune different backbone architectures
+- Add inference on custom images or video
+- Build a Streamlit/Gradio demo
+- Export the trained model for production inference
+- Add experiment tracking with TensorBoard or Weights & Biases
+
+## 👨‍💻 Author
+
+**Tauhidul Islam Topu**
+
+Computer Science & Engineering | Machine Learning & Deep Learning Enthusiast
+
+GitHub: [@Tauhid-Topu-007](https://github.com/Tauhid-Topu-007)
+
+## ⭐ Support
+
+If you find this project useful for learning computer vision or object detection, consider giving the repository a ⭐ on GitHub.
+
+## 📄 License
+
+This project is intended for educational and research purposes. Please review the dataset's original license and terms before using the dataset or trained models for commercial purposes.
